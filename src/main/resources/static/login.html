@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -18,142 +18,124 @@
             background: white;
             padding: 35px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-        .tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #eee;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px;
+            max-width: 380px;
             text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #888;
-            transition: 0.3s;
         }
-        .tab.active {
-            color: #1e3c72;
-            border-bottom: 2px solid #1e3c72;
-            margin-bottom: -2px;
-        }
-        .form-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-        label { display: block; margin-bottom: 6px; color: #555; font-size: 13px; font-weight: 600; }
+        h2 { color: #333; margin-bottom: 20px; }
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 13px; }
         input {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 14px;
         }
-        input:focus { border-color: #2a5298; outline: none; }
+        input:focus { border-color: #667eea; outline: none; }
         button {
             width: 100%;
-            padding: 12px;
-            background: #2a5298;
+            padding: 11px;
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.3s;
             margin-top: 10px;
+            transition: background 0.3s;
         }
-        button:hover { background: #1e3c72; }
-        .msg { margin-top: 15px; font-size: 13px; text-align: center; }
+        button:hover { background: #5563c1; }
+        .msg { margin-top: 12px; font-size: 13px; }
         .error { color: #e74c3c; }
         .success { color: #2ecc71; }
-        .hidden { display: none; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
     </style>
 </head>
 <body>
     <div class="card">
+        <h2>🚗 Portal de Veículos</h2>
+        
         <div class="tabs">
-            <div id="tabLogin" class="tab active" onclick="switchTab('login')">Entrar</div>
-            <div id="tabRegister" class="tab" onclick="switchTab('register')">Cadastrar</div>
+            <div class="tab active" onclick="switchTab('login')">Entrar</div>
+            <div class="tab" onclick="switchTab('register')">Registrar</div>
         </div>
 
         <!-- Formulário de Login -->
-        <form id="loginForm" onsubmit="realizarLogin(event)">
-            <div class="form-group">
+        <form id="loginForm" class="form-section active" onsubmit="realizarLogin(event)">
+            <div class="input-group">
                 <label>E-mail ou Usuário</label>
-                <input type="text" id="loginUser" required placeholder="Digite seu e-mail">
+                <input type="text" id="loginUser" required placeholder="Seu e-mail ou admin">
             </div>
-            <div class="form-group">
+            <div class="input-group">
                 <label>Senha</label>
                 <input type="password" id="loginPass" required placeholder="Sua senha">
             </div>
-            <button type="submit">Entrar no Sistema</button>
-            <p id="loginMsg" class="msg error hidden"></p>
+            <button type="submit">Entrar</button>
+            <p id="loginMsg" class="msg"></p>
         </form>
 
         <!-- Formulário de Registro -->
-        <form id="registerForm" class="hidden" onsubmit="realizarRegistro(event)">
-            <div class="form-group">
+        <form id="registerForm" class="form-section" onsubmit="realizarRegistro(event)">
+            <div class="input-group">
                 <label>Nome Completo</label>
-                <input type="text" id="regNome" required placeholder="Seu nome">
+                <input type="text" id="regName" required placeholder="Seu nome">
             </div>
-            <div class="form-group">
+            <div class="input-group">
                 <label>E-mail (Gmail)</label>
                 <input type="email" id="regEmail" required placeholder="seuemail@gmail.com">
             </div>
-            <div class="form-group">
+            <div class="input-group">
                 <label>Senha</label>
                 <input type="password" id="regPass" required placeholder="Crie uma senha">
             </div>
-            <button type="submit">Criar Conta</button>
-            <p id="regMsg" class="msg success hidden"></p>
+            <button type="submit">Cadastrar Conta</button>
+            <p id="regMsg" class="msg"></p>
         </form>
     </div>
 
     <script>
         function switchTab(tab) {
-            if (tab === 'login') {
-                document.getElementById('tabLogin').classList.add('active');
-                document.getElementById('tabRegister').classList.remove('active');
-                document.getElementById('loginForm').classList.remove('hidden');
-                document.getElementById('registerForm').classList.add('hidden');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            
+            if(tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
             } else {
-                document.getElementById('tabRegister').classList.add('active');
-                document.getElementById('tabLogin').classList.remove('active');
-                document.getElementById('registerForm').classList.remove('hidden');
-                document.getElementById('loginForm').classList.add('hidden');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
             }
         }
 
         function realizarRegistro(e) {
             e.preventDefault();
-            const nome = document.getElementById('regNome').value;
+            const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
-            const senha = document.getElementById('regPass').value;
+            const pass = document.getElementById('regPass').value;
 
-            let usuarios = JSON.parse(localStorage.getItem('usuarios_frota')) || [];
+            let usuarios = JSON.parse(localStorage.getItem('usuarios_app')) || [];
             
             if(usuarios.some(u => u.email === email)) {
                 const msg = document.getElementById('regMsg');
                 msg.className = 'msg error';
                 msg.innerText = 'Este e-mail já está cadastrado!';
-                msg.classList.remove('hidden');
                 return;
             }
 
-            usuarios.push({ nome, email, senha });
-            localStorage.setItem('usuarios_frota', JSON.stringify(usuarios));
+            usuarios.push({ name, email, pass });
+            localStorage.setItem('usuarios_app', JSON.stringify(usuarios));
 
             const msg = document.getElementById('regMsg');
             msg.className = 'msg success';
-            msg.innerText = 'Conta criada com sucesso! Vá para a aba Entrar.';
-            msg.classList.remove('hidden');
+            msg.innerText = 'Cadastro realizado com sucesso! Vá para Entrar.';
             document.getElementById('registerForm').reset();
         }
 
@@ -162,21 +144,20 @@
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
 
-            // Conta padrão de teste
-            if ((user === 'admin' || user === 'admin@gmail.com') && pass === '1234') {
+            if(user === 'admin' && pass === '1234') {
                 window.location.href = '/index.html';
                 return;
             }
 
-            let usuarios = JSON.parse(localStorage.getItem('usuarios_frota')) || [];
-            const encontrado = usuarios.find(u => (u.email === user || u.nome === user) && u.senha === pass);
+            let usuarios = JSON.parse(localStorage.getItem('usuarios_app')) || [];
+            const encontrado = usuarios.find(u => (u.email === user || u.name === user) && u.pass === pass);
 
-            if (encontrado) {
+            if(encontrado) {
                 window.location.href = '/index.html';
             } else {
                 const msg = document.getElementById('loginMsg');
-                msg.innerText = 'E-mail ou senha incorretos! (Teste: admin / 1234)';
-                msg.classList.remove('hidden');
+                msg.className = 'msg error';
+                msg.innerText = 'Usuário ou senha incorretos!';
             }
         }
     </script>
