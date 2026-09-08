@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Completo - Frota de Veículos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            max-width: 1000px;
+            margin: 0 auto 25px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { margin: 0; color: #1e3c72; font-size: 22px; }
+        .btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-primary { background: #27ae60; }
+        .btn-primary:hover { background: #219653; }
+        .btn:hover { background: #c0392b; }
+
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .panel input, .panel select {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid #2a5298;
+            transition: 0.2s;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 8px 0; color: #1e3c72; }
+        .card p { margin: 4px 0; color: #666; font-size: 14px; }
+        .badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .empty { text-align: center; color: #888; grid-column: 1 / -1; padding: 40px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚗 Garagem Global - Clássicos & Modernos</h1>
+        <a href="login.html" class="btn">Sair</a>
+    </header>
+
+    <div class="container">
+        <!-- Formulário para Adicionar Veículo -->
+        <div class="panel">
+            <select id="presetCarro" onchange="preencherCarroPreset()">
+                <option value="">✨ Escolher carro famoso do catálogo...</option>
+            </select>
+            <input type="text" id="novaMarca" placeholder="Marca (ex: Chevrolet)">
+            <input type="text" id="novoModelo" placeholder="Modelo (ex: Opala SS)">
+            <input type="number" id="novoAno" placeholder="Ano (ex: 1978)">
+            <input type="text" id="novaPlaca" placeholder="Placa (ex: ABC-1234)">
+            <button class="btn btn-primary" onclick="cadastrarVeiculo()">Adicionar à Frota</button>
+        </div>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Pesquisar em toda a frota por modelo, marca ou ano..." onkeyup="filtrarVeiculos()">
+        
+        <div id="veiculosGrid" class="grid"></div>
+    </div>
+
+    <script>
+        // Catálogo gigante embutido contendo clássicos e modelos modernos até 2026
+        const catalogoGlobal = [
+            // Clássicos Nacionais e Históricos
+            {marca: "Volkswagen", modelo: "Fusca 1300", ano: 1975, placa: "FUS-1975"},
+            {marca: "Chevrolet", modelo: "Opala SS", ano: 1978, placa: "OPA-1978"},
+            {marca: "Ford", modelo: "Maverick V8", ano: 1976, placa: "MAV-1976"},
+            {marca: "Volkswagen", modelo: "Kombi Corujinha", ano: 1970, placa: "KOM-1970"},
+            {marca: "Fiat", modelo: "147", ano: 1980, placa: "FIA-1470"},
+            {marca: "Chevrolet", modelo: "Chevette", ano: 1983, placa: "CHE-1983"},
+            {marca: "Volkswagen", modelo: "Gol Quadrado", ano: 1992, placa: "GOL-1992"},
+            {marca: "Fiat", modelo: "Uno Mille", ano: 1995, placa: "UNO-1995"},
+            {marca: "Ford", modelo: "Escort XR3", ano: 1991, placa: "ESC-1991"},
+            
+            // Ícones Japoneses e Esportivos
+            {marca: "Nissan", modelo: "Skyline GT-R R34", ano: 1999, placa: "GTR-1999"},
+            {marca: "Toyota", modelo: "Supra MK4", ano: 1998, placa: "SUP-1998"},
+            {marca: "Mazda", modelo: "RX-7 FD", ano: 1995, placa: "RX7-1995"},
+            {marca: "Honda", modelo: "Civic Si", ano: 2008, placa: "CIV-2008"},
+            {marca: "Subaru", modelo: "Impreza WRX STI", ano: 2004, placa: "WRX-2004"},
+            {marca: "Mitsubishi", modelo: "Lancer Evolution IX", ano: 2006, placa: "EVO-2006"},
+            
+            // Superesportivos e Clássicos Internacionais
+            {marca: "Ferrari", modelo: "F40", ano: 1987, placa: "FER-1987"},
+            {marca: "Lamborghini", modelo: "Countach", ano: 1982, placa: "LAM-1982"},
+            {marca: "Porsche", modelo: "911 Turbo (930)", ano: 1988, placa: "POR-1988"},
+            {marca: "Ford", modelo: "GT40", ano: 1966, placa: "GT4-1966"},
+            {marca: "Chevrolet", modelo: "Corvette Stingray", ano: 1969, placa: "COR-1969"},
+            {marca: "Dodge", modelo: "Charger R/T", ano: 1970, placa: "DOD-1970"},
+
+            // Modelos Modernos e Atuais até 2026
+            {marca: "Porsche", modelo: "911 GT3 RS", ano: 2024, placa: "GT3-2024"},
+            {marca: "Lamborghini", modelo: "Revuelto V12", ano: 2025, placa: "REV-2025"},
+            {marca: "Tesla", modelo: "Model S Plaid", ano: 2025, placa: "TSL-2025"},
+            {marca: "BYD", modelo: "Seal EV", ano: 2025, placa: "BYD-2025"},
+            {marca: "Ferrari", modelo: "F80 Hypercar", ano: 2026, placa: "F80-2026"},
+            {marca: "Toyota", modelo: "GR Corolla", ano: 2024, placa: "GRC-2024"},
+            {marca: "Chevrolet", modelo: "Corvette Z06", ano: 2024, placa: "Z06-2024"}
+        ];
+
+        let listaVeiculos = [];
+
+        function popularSelectPreset() {
+            const select = document.getElementById('presetCarro');
+            catalogoGlobal.forEach((c, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `${c.marca} ${c.modelo} (${c.ano})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function preencherCarroPreset() {
+            const index = document.getElementById('presetCarro').value;
+            if (index === "") return;
+            const carro = catalogoGlobal[index];
+            document.getElementById('novaMarca').value = carro.marca;
+            document.getElementById('novoModelo').value = carro.modelo;
+            document.getElementById('novoAno').value = carro.ano;
+            document.getElementById('novaPlaca').value = carro.placa;
+        }
+
+        async function carregarVeiculos() {
+            try {
+                const response = await fetch('/veiculos');
+                listaVeiculos = await response.json();
+                exibirVeiculos(listaVeiculos);
+            } catch (error) {
+                console.error('Erro ao buscar veículos:', error);
+            }
+        }
+
+        async function cadastrarVeiculo() {
+            const marca = document.getElementById('novaMarca').value;
+            const modelo = document.getElementById('novoModelo').value;
+            const ano = document.getElementById('novoAno').value;
+            const placa = document.getElementById('novaPlaca').value;
+
+            if(!marca || !modelo || !ano || !placa) {
+                alert('Preencha todos os campos do veículo!');
+                return;
+            }
+
+            const novoVeiculo = { marca, modelo, ano: parseInt(ano), placa };
+
+            await fetch('/veiculos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novoVeiculo)
+            });
+
+            // Limpa campos
+            document.getElementById('novaMarca').value = '';
+            document.getElementById('novoModelo').value = '';
+            document.getElementById('novoAno').value = '';
+            document.getElementById('novaPlaca').value = '';
+            document.getElementById('presetCarro').value = '';
+
+            carregarVeiculos();
+        }
+
+        function exibirVeiculos(veiculos) {
+            const grid = document.getElementById('veiculosGrid');
+            grid.innerHTML = '';
+
+            if (veiculos.length === 0) {
+                grid.innerHTML = '<div class="empty">Nenhum veículo cadastrado na frota. Escolha um modelo acima e adicione!</div>';
+                return;
+            }
+
+            veiculos.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${v.marca} ${v.modelo}</h3>
+                    <p><strong>Ano:</strong> ${v.ano}</p>
+                    <p><strong>Placa:</strong> ${v.placa}</p>
+                    <span class="badge">Registro ID: #${v.id}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrarVeiculos() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const filtrados = listaVeiculos.filter(v => 
+                v.modelo.toLowerCase().includes(termo) ||
+                v.marca.toLowerCase().includes(termo) ||
+                v.ano.toString().includes(termo) ||
+                v.placa.toLowerCase().includes(termo)
+            );
+            exibirVeiculos(filtrados);
+        }
+
+        popularSelectPreset();
+        carregarVeiculos();
+    </script>
+</body>
+</html>
